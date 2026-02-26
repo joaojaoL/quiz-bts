@@ -7,44 +7,29 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden;
+            margin: 0; display: flex; align-items: center; justify-content: center;
+            height: 100vh; overflow: hidden;
             background: #2d0a50 url('bts.jpg') no-repeat center center fixed; 
             background-size: cover;
         }
-
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(45, 10, 80, 0.5); z-index: 1; }
-
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(45, 10, 80, 0.4); z-index: 1; }
         .quiz-card {
-            position: relative;
-            text-align: center;
-            width: 90%;
-            max-width: 450px;
-            background: rgba(255, 255, 255, 0.96);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            z-index: 2;
+            position: relative; text-align: center; width: 90%; max-width: 450px;
+            background: rgba(255, 255, 255, 0.96); padding: 30px; border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5); z-index: 2;
         }
-
-        h1 { color: #4a148c; font-size: 19px; margin-bottom: 25px; }
-
+        h1 { color: #4a148c; font-size: 18px; margin-bottom: 20px; min-height: 50px; }
         .btn-option {
-            width: 100%; padding: 15px; font-size: 16px; font-weight: bold;
+            width: 100%; padding: 12px; font-size: 15px; font-weight: bold;
             color: #333; background: #fff; border: 2px solid #ddd;
-            border-radius: 12px; cursor: pointer; transition: 0.1s;
-            margin-bottom: 10px;
+            border-radius: 12px; cursor: pointer; transition: 0.1s; margin-bottom: 8px;
         }
-
         .btn-correct { background: #2ecc71 !important; color: white !important; border-color: #27ae60 !important; }
         .btn-wrong { background: #e74c3c !important; color: white !important; border-color: #c0392b !important; }
-
         .menu-container { position: fixed; top: 15px; right: 15px; z-index: 100; }
-        select { padding: 8px; border-radius: 5px; background: #4a148c; color: white; border: 1px solid white; }
+        select { padding: 8px; border-radius: 5px; background: #4a148c; color: white; border: 1px solid white; font-weight: bold; }
+        .music-control { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
+        .btn-music { background: rgba(128, 0, 128, 0.8); color: white; border: none; padding: 10px; border-radius: 50%; cursor: pointer; width: 50px; height: 50px; font-size: 22px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
@@ -57,9 +42,9 @@
 
     <div class="menu-container">
         <select id="select-nivel" onchange="mudarNivel()">
-            <option value="1">BTS: Fácil</option>
-            <option value="2">BTS: Médio</option>
-            <option value="3">BTS: Expert</option>
+            <option value="1">BTS: Nível Fácil</option>
+            <option value="2">BTS: Nível Médio</option>
+            <option value="3">BTS: Nível Expert</option>
             <option value="4">Doramas: Românticos 1</option>
             <option value="5">Doramas: Românticos 2</option>
         </select>
@@ -70,80 +55,25 @@
         <div id="options-box"></div>
     </div>
 
+    <div class="music-control">
+        <button class="btn-music" onclick="toggleMusic()"><span id="music-icon">🔇</span></button>
+    </div>
+
     <script>
         const audioBg = document.getElementById('bg-music');
         const sfxCerto = document.getElementById('sound-certo');
         const sfxErrado = document.getElementById('sound-errado');
+        const musicIcon = document.getElementById('music-icon');
+
+        function toggleMusic() {
+            if (audioBg.paused) { audioBg.play(); musicIcon.innerText = "🔊"; }
+            else { audioBg.pause(); musicIcon.innerText = "🔇"; }
+        }
 
         const db = {
             1: [
                 { q: "Quantos integrantes tem o BTS?", options: ["7", "9"], correct: "7" },
-                { q: "Qual o nome do fandom do BTS?", options: ["ARMY", "BLINK"], correct: "ARMY" },
-                { q: "Quem é o líder do grupo?", options: ["RM", "Jin"], correct: "RM" },
-                { q: "Quem é o integrante mais novo (maknae)?", options: ["Jungkook", "V"], correct: "Jungkook" },
-                { q: "Qual a cor oficial do BTS?", options: ["Roxo", "Amarelo"], correct: "Roxo" }
-            ],
-            4: [
-                { q: "Em 'Pousando no Amor', onde a protagonista cai?", options: ["Coreia do Norte", "Suíça"], correct: "Coreia do Norte" },
-                { q: "Dorama com uma advogada que ama baleias?", options: ["Uma Advogada Extraordinária", "Vincenzo"], correct: "Uma Advogada Extraordinária" },
-                { q: "Em 'Hometown Cha-Cha-Cha', qual a profissão dela?", options: ["Dentista", "Médica"], correct: "Dentista" }
-            ]
-            // Adicione os outros níveis conforme o código anterior se desejar
-        };
-
-        let perguntasAtuais = [];
-        let indexAtual = 0;
-        let bloqueado = false;
-
-        function mudarNivel() {
-            const nivel = document.getElementById('select-nivel').value;
-            perguntasAtuais = db[nivel] || db[1];
-            indexAtual = 0;
-            load();
-        }
-
-        function load() {
-            bloqueado = false;
-            const optionsBox = document.getElementById('options-box');
-            optionsBox.innerHTML = "";
-
-            if (indexAtual < perguntasAtuais.length) {
-                const p = perguntasAtuais[indexAtual];
-                document.getElementById('question-text').innerText = p.q;
-                p.options.forEach(opt => {
-                    const btn = document.createElement('button');
-                    btn.className = 'btn-option';
-                    btn.innerText = opt;
-                    btn.onclick = () => check(opt, btn);
-                    optionsBox.appendChild(btn);
-                });
-            } else {
-                document.getElementById('question-text').innerText = "Fim do Quiz! ✨";
-                optionsBox.innerHTML = `<button class="btn-option" onclick="location.reload()">Jogar de Novo</button>`;
-            }
-        }
-
-        function check(escolha, btn) {
-            if(bloqueado) return;
-            bloqueado = true;
-            const correta = perguntasAtuais[indexAtual].correct;
-
-            if (escolha === correta) {
-                btn.classList.add('btn-correct');
-                try { sfxCerto.currentTime = 0; sfxCerto.play(); } catch(e){}
-            } else {
-                btn.classList.add('btn-wrong');
-                try { sfxErrado.currentTime = 0; sfxErrado.play(); } catch(e){}
-            }
-
-            setTimeout(() => { indexAtual++; load(); }, 400); // Transição super rápida
-        }
-
-        // Inicia o quiz assim que a página carrega
-        window.onload = () => {
-            mudarNivel();
-            document.body.onclick = () => { if(audioBg.paused) audioBg.play(); };
-        };
-    </script>
-</body>
-</html>
+                { q: "Qual o nome do fandom do BTS?", options: ["ARMY", "Stay"], correct: "ARMY" },
+                { q: "Qual a cor oficial do grupo?", options: ["Roxo", "Verde"], correct: "Roxo" },
+                { q: "Quem é o integrante mais novo (maknae)?", options: ["Jungkook", "Jin"], correct: "Jungkook" },
+                { q: "Em qual país nasceu o BTS?", options: ["Coreia do Sul", "China"], correct: "Coreia do Sul
