@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz da Tia: BTS & Doramas</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            /* IMAGEM VOLTOU PARA bts.jpg */
+            background: url('bts.jpg') no-repeat center center fixed; 
+            background-size: cover;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(45, 10, 80, 0.5); 
+            z-index: 1;
+        }
+
+        .menu-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        select {
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #fff;
+            background: rgba(128, 0, 128, 0.8);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .quiz-card {
+            position: relative;
+            text-align: center;
+            width: 90%;
+            max-width: 450px;
+            background: rgba(255, 255, 255, 0.96);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            z-index: 2;
+        }
+
+        h1 { color: #4a148c; font-size: 19px; margin-bottom: 25px; min-height: 50px; }
+
+        .options-container {
+            display: flex;
+            flex-direction: column; gap: 12px; width: 100%;
+        }
+
+        .btn-option {
+            width: 100%; padding: 16px; font-size: 16px; font-weight: bold;
+            color: #333; background-color: #fff; border: 2px solid #ddd;
+            border-radius: 12px; cursor: pointer; transition: 0.2s;
+        }
+
+        .btn-correct { background-color: #2ecc71 !important; color: white !important; border-color: #27ae60 !important; }
+        .btn-wrong { background-color: #e74c3c !important; color: white !important; border-color: #c0392b !important; }
+
+        .watermark { margin-top: 20px; font-size: 11px; color: #999; }
+
+        .music-control {
+            position: fixed; bottom: 20px; right: 20px; z-index: 1000;
+        }
+
+        .btn-music {
+            background: rgba(128, 0, 128, 0.7); color: white; border: none;
+            padding: 10px; border-radius: 50%; cursor: pointer;
+            width: 45px; height: 45px; font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay"></div>
+
+    <audio id="bg-music" loop><source src="bts2.mp3" type="audio/mpeg"></audio>
+    <audio id="sound-certo"><source src="certo.mp3" type="audio/mpeg"></audio>
+    <audio id="sound-errado"><source src="negar.mp3" type="audio/mpeg"></audio>
+
+    <div class="menu-container">
+        <select id="select-nivel" onchange="mudarNivel()">
+            <option value="1">BTS: Nível Fácil</option>
+            <option value="2">BTS: Nível Médio</option>
+            <option value="3">BTS: Nível Expert</option>
+            <option value="4">Doramas: Românticos</option>
+            <option value="5">Doramas: Netflix / Sucessos</option>
+        </select>
+    </div>
+
+    <div class="quiz-card" id="quiz-content">
+        <h1 id="question-text">Carregando...</h1>
+        <div class="options-container" id="options-box"></div>
+        <div class="watermark">Feito para a Tia ✨</div>
+    </div>
+
+    <div class="music-control">
+        <button class="btn-music" onclick="toggleMusic()">
+            <span id="music-icon">🔇</span>
+        </button>
+    </div>
+
+    <script>
+        const audioBg = document.getElementById('bg-music');
+        const sfxCerto = document.getElementById('sound-certo');
+        const sfxErrado = document.getElementById('sound-errado');
+        const musicIcon = document.getElementById('music-icon');
+
+        function toggleMusic() {
+            if (audioBg.paused) { audioBg.play(); musicIcon.innerText = "🔊"; }
+            else { audioBg.pause(); musicIcon.innerText = "🔇"; }
+        }
+
+        document.body.addEventListener('click', () => {
+            if(audioBg.paused) { audioBg.play(); musicIcon.innerText = "🔊"; }
+        }, { once: true });
+
+        const db = {
+            1: [
+                { q: "Quantos integrantes tem o BTS?", options: ["7", "9"], correct: "7" },
+                { q: "Qual o nome do fandom do BTS?", options: ["ARMY", "BLINK"], correct: "ARMY" },
+                { q: "Quem é o líder do grupo?", options: ["RM", "Jin"], correct: "RM" },
+                { q: "Quem é o integrante mais novo (maknae)?", options: ["Jungkook", "V"], correct: "Jungkook" },
+                { q: "Qual a cor oficial que representa o BTS?", options: ["Roxo", "Rosa"], correct: "Roxo" },
+                { q: "Em qual país nasceu o BTS?", options: ["Coreia do Sul", "Japão"], correct: "Coreia do Sul" },
+                { q: "Qual integrante é conhecido como 'World Wide Handsome'?", options: ["Jin", "Jimin"], correct: "Jin" },
+                { q: "Qual o nome real do integrante V?", options: ["Kim Taehyung", "Park Jimin"], correct: "Kim Taehyung" },
+                { q: "Qual música do BTS foi um estouro em inglês?", options: ["Dynamite", "Fake Love"], correct: "Dynamite" },
+                { q: "O BTS debutou em qual ano?", options: ["2013", "2015"], correct: "2013" }
+            ],
+            2: [
+                { q: "Qual integrante serviu primeiro no exército?", options: ["Jin", "Suga"], correct: "Jin" },
+                { q: "Qual o nome artístico de Min Yoongi?", options: ["Suga", "J-Hope"], correct: "Suga" },
+                { q: "J-Hope é conhecido por ser o melhor...", options: ["Dançarino", "Cozinheiro"], correct: "Dançarino" },
+                { q: "Qual o nome do reality de viagens do BTS?", options: ["Bon Voyage", "BTS Run"], correct: "Bon Voyage" },
+                { q: "Jimin nasceu em qual cidade?", options: ["Busan", "Seoul"], correct: "Busan" },
+                { q: "Quem lançou o álbum solo 'Indigo'?", options: ["RM", "V"], correct: "RM" },
+                { q: "Qual o personagem do Jungkook no BT21?", options: ["Cooky", "Tata"], correct: "Cooky" },
+                { q: "Qual a empresa que criou o BTS?", options: ["Big Hit (HYBE)", "SM"], correct: "Big Hit (HYBE)" },
+                { q: "Quem canta o solo 'Serendipity'?", options: ["Jimin", "Jin"], correct: "Jimin" },
+                { q: "O álbum 'Love Yourself: Answer' é de qual ano?", options: ["2018", "2020"], correct: "2018" }
+            ],
+            3: [
+                { q: "Qual foi a música de estreia do BTS?", options: ["No More Dream", "Boy In Luv"], correct: "No More Dream" },
+                { q: "Quem toca piano muito bem no grupo?", options: ["Suga", "V"], correct: "Suga" },
+                { q: "Qual o nome da mixtape do J-Hope?", options: ["Hope World", "Jack in the box"], correct: "Hope World" },
+                { q: "Música que o BTS cantou no Grammy 2022?", options: ["Butter", "Dynamite"], correct: "Butter" },
+                { q: "Qual o nome do solo do Jin pro espaço?", options: ["The Astronaut", "Abyss"], correct: "The Astronaut" },
+                { q: "Quem atuou no dorama 'Hwarang'?", options: ["V", "Jungkook"], correct: "V" },
+                { q: "Qual o apelido do Jimin por ser fofo?", options: ["Mochi", "Bear"], correct: "Mochi" },
+                { q: "Qual o nome do cachorro do V?", options: ["Yeontan", "Holly"], correct: "Yeontan" },
+                { q: "Onde foi o show 'Yet to Come'?", options: ["Busan", "Seoul"], correct: "Busan" },
+                { q: "Qual o significado da sigla BTS?", options: ["Bangtan Sonyeondan", "Beyond the Stars"], correct: "Bangtan Sonyeondan" }
+            ],
+            4: [
+                { q: "Em 'Pousando no Amor', onde ela cai?", options: ["Coreia do Norte", "China"], correct: "Coreia do Norte" },
+                { q: "Advogada que ama baleias?", options: ["Uma Advogada Extraordinária", "Vincenzo"], correct: "Uma Advogada Extraordinária" },
+                { q: "Em 'Hometown Cha-Cha-Cha', ela é...", options: ["Dentista", "Médica"], correct: "Dentista" },
+                { q: "Qual dorama tem os 4 rapazes ricos (F4)?", options: ["Boys Over Flowers", "The Heirs"], correct: "Boys Over Flowers" },
+                { q: "Em 'Goblin', o que ele tem no peito?", options: ["Uma Espada", "Uma Flecha"], correct: "Uma Espada" },
+                { q: "Dorama sobre hotel para fantasmas?", options: ["Hotel del Luna", "Oh My Ghost"], correct: "Hotel del Luna" },
+                { q: "Em 'Tudo Bem Não Ser Normal', ela faz...", options: ["Livros Infantis", "Poesia"], correct: "Livros Infantis" },
+                { q: "Beleza Verdadeira fala sobre...", options: ["Maquiagem", "Culinária"], correct: "Maquiagem" },
+                { q: "O Ceifador aparece em qual dorama?", options: ["Goblin", "Black"], correct: "Goblin" },
+                { q: "Em 'Descendentes do Sol', ele é...", options: ["Capitão", "Policial"], correct: "Capitão" }
+            ],
+            5: [
+                { q: "Dorama da Netflix com jogos mortais?", options: ["Round 6", "Alice"], correct: "Round 6" },
+                { q: "Em 'Vincenzo', ele é da máfia...", options: ["Italiana", "Russa"], correct: "Italiana" },
+                { q: "Dorama com Zumbis na escola?", options: ["All of Us Are Dead", "Kingdom"], correct: "All of Us Are Dead" },
+                { q: "Em 'Itaewon Class', ele abre um...", options: ["Restaurante", "Loja"], correct: "Restaurante" },
+                { q: "Dorama sobre o 'Contador' de demônios?", options: ["The Uncanny Counter", "Sweet Home"], correct: "The Uncanny Counter" },
+                { q: "Em 'A Lição' (The Glory), o tema é...", options: ["Vingança", "Esportes"], correct: "Vingança" },
+                { q: "Lee Min-ho estrela qual dorama abaixo?", options: ["O Rei Eterno", "Vincenzo"], correct: "O Rei Eterno" },
+                { q: "Qual dorama se passa em uma Startup?", options: ["Apostando Alto (Start-Up)", "Herdeiros"], correct: "Apostando Alto (Start-Up)" },
+                { q: "Qual o nome da herdeira em 'Pousando no Amor'?", options: ["Yoon Se-ri", "Kang Sae-byeok"], correct: "Yoon Se-ri" },
+                { q: "Em 'Round 6', qual o número do protagonista?", options: ["456", "001"], correct: "456" }
+            ]
+        };
+
+        let perguntasAtuais = [];
+        let indexAtual = 0;
+        let acertos = 0;
+        let bloqueado = false;
+
+        function mudarNivel() {
+            const nivel = document.getElementById('select-nivel').value;
+            perguntasAtuais = [...db[nivel]];
+            indexAtual = 0;
+            acertos = 0;
+            load();
+        }
+
+        function load() {
+            bloqueado = false;
+            const optionsBox = document.getElementById('options-box');
+            optionsBox.innerHTML = "";
+
+            if (indexAtual < perguntasAtuais.length) {
+                const p = perguntasAtuais[indexAtual];
+                document.getElementById('question-text').innerText = p.q;
+                const shuffledOptions = [...p.options].sort(() => Math.random() - 0.5);
+                shuffledOptions.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn-option';
+                    btn.innerText = opt;
+                    btn.onclick = () => check(opt, btn);
+                    optionsBox.appendChild(btn);
+                });
+            } else {
+                exibirRank();
+            }
+        }
+
+        function check(escolha, btnBotao) {
+            if(bloqueado) return;
+            bloqueado = true;
+            const correta = perguntasAtuais[indexAtual].correct;
+            if (escolha === correta) {
+                acertos++;
+                btnBotao.classList.add('btn-correct');
+                sfxCerto.currentTime = 0;
+                sfxCerto.play();
+            } else {
+                btnBotao.classList.add('btn-wrong');
+                sfxErrado.currentTime = 0;
+                sfxErrado.play();
+                Array.from(document.querySelectorAll('.btn-option')).forEach(b => {
+                    if(b.innerText === correta) b.classList.add('btn-correct');
+                });
+            }
+            setTimeout(() => { indexAtual++; load(); }, 800);
+        }
+
+        function exibirRank() {
+            let rank = acertos >= 9 ? "Expert em Coreia! 💜" : acertos >= 7 ? "Fã de Carteirinha! ✨" : "Iniciante no K-Mundo 🌸";
+            document.getElementById('quiz-content').innerHTML = `
+                <h1>Fim do Quiz!</h1>
+                <p>Acertos: ${acertos}/10</p>
+                <div style="font-size:20px; font-weight:bold; color:#4a148c; margin:20px 0">${rank}</div>
+                <button class="btn-option" style="background:#4a148c; color:white" onclick="location.reload()">Reiniciar</button>
+            `;
+        }
+        mudarNivel();
+    </script>
+</body>
+</html>
