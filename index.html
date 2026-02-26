@@ -20,23 +20,11 @@
             box-shadow: 0 15px 35px rgba(0,0,0,0.5); z-index: 2;
         }
         h1 { color: #4a148c; font-size: 18px; margin-bottom: 10px; min-height: 45px; }
-        
-        /* Estilo da Barra de Progresso */
-        .progress-container {
-            width: 100%; height: 8px; background: #eee; border-radius: 10px; margin-bottom: 25px; overflow: hidden;
-        }
-        .progress-bar {
-            width: 0%; height: 100%; background: #8e44ad; transition: 0.3s;
-        }
-
-        .btn-option {
-            width: 100%; padding: 12px; font-size: 15px; font-weight: bold;
-            color: #333; background: #fff; border: 2px solid #ddd;
-            border-radius: 12px; cursor: pointer; transition: 0.1s; margin-bottom: 8px;
-        }
+        .progress-container { width: 100%; height: 8px; background: #eee; border-radius: 10px; margin-bottom: 25px; overflow: hidden; }
+        .progress-bar { width: 0%; height: 100%; background: #8e44ad; transition: 0.3s; }
+        .btn-option { width: 100%; padding: 12px; font-size: 15px; font-weight: bold; color: #333; background: #fff; border: 2px solid #ddd; border-radius: 12px; cursor: pointer; transition: 0.1s; margin-bottom: 8px; }
         .btn-correct { background: #2ecc71 !important; color: white !important; border-color: #27ae60 !important; }
         .btn-wrong { background: #e74c3c !important; color: white !important; border-color: #c0392b !important; }
-        
         .rank-title { font-size: 22px; font-weight: bold; color: #4a148c; margin: 15px 0; display: block; }
         .menu-container { position: fixed; top: 15px; right: 15px; z-index: 100; }
         select { padding: 8px; border-radius: 5px; background: #4a148c; color: white; border: 1px solid white; font-weight: bold; }
@@ -53,7 +41,7 @@
     <audio id="sound-errado" preload="auto"><source src="erro.mp3" type="audio/mpeg"></audio>
 
     <div class="menu-container">
-        <select id="select-nivel" onchange="mudarNivel()">
+        <select id="select-nivel">
             <option value="1">BTS: Nível Fácil</option>
             <option value="2">BTS: Nível Médio</option>
             <option value="3">BTS: Nível Expert</option>
@@ -63,7 +51,7 @@
     </div>
 
     <div class="quiz-card" id="quiz-content">
-        <h1 id="question-text">Iniciando...</h1>
+        <h1 id="question-text">Carregando perguntas...</h1>
         <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
         <div id="options-box"></div>
     </div>
@@ -73,3 +61,9 @@
     </div>
 
     <script>
+        // Banco de Dados (Mesmas perguntas)
+        const db = {
+            1: [{q:"Quantos integrantes tem o BTS?",options:["7","9"],correct:"7"},{q:"Qual o nome do fandom do BTS?",options:["ARMY","Stay"],correct:"ARMY"},{q:"Qual a cor oficial do grupo?",options:["Roxo","Verde"],correct:"Roxo"},{q:"Quem é o integrante mais novo (maknae)?",options:["Jungkook","Jin"],correct:"Jungkook"},{q:"Em qual país nasceu o BTS?",options:["Coreia do Sul","China"],correct:"Coreia do Sul"},{q:"Qual o nome do líder do grupo?",options:["RM","J-Hope"],correct:"RM"},{q:"Quem é o integrante mais velho?",options:["Jin","Suga"],correct:"Jin"},{q:"Qual dessas músicas é do BTS?",options:["Dynamite","Solo"],correct:"Dynamite"},{q:"O BTS estreou em qual ano?",options:["2013","2015"],correct:"2013"},{q:"Qual o nome real do V?",options:["Kim Taehyung","Park Jimin"],correct:"Kim Taehyung"}],
+            2: [{q:"Qual integrante é o 'Worldwide Handsome'?",options:["Jin","V"],correct:"Jin"},{q:"Qual o nome artístico de Min Yoongi?",options:["Suga","RM"],correct:"Suga"},{q:"Qual o nome do reality de viagens deles?",options:["Bon Voyage","In the Soop"],correct:"Bon Voyage"},{q:"Quem lançou o álbum 'Indigo'?",options:["RM","Jimin"],correct:"RM"},{q:"Qual o personagem do Jungkook no BT21?",options:["Cooky","Tata"],correct:"Cooky"},{q:"Qual integrante é o 'Sol' do grupo?",options:["J-Hope","RM"],correct:"J-Hope"},{q:"Quem canta o solo 'Serendipity'?",options:["Jimin","V"],correct:"Jimin"},{q:"Jimin nasceu em qual cidade?",options:["Busan","Seoul"],correct:"Busan"},{q:"Qual integrante toca saxofone?",options:["V","Suga"],correct:"V"},{q:"Qual a empresa do BTS?",options:["Bighit (HYBE)","SM"],correct:"Bighit (HYBE)"}],
+            3: [{q:"Em que dia exato o BTS estreou?",options:["13 de Junho","12 de Junho"],correct:"13 de Junho"},{q:"O que significa 'Bangtan Sonyeondan'?",options:["Escoteiros à Prova de Balas","Garotos de Ouro"],correct:"Escoteiros à Prova de Balas"},{q:"Qual o nome do cachorro do V?",options:["Yeontan","Holly"],correct:"Yeontan"},{q:"Onde foi o show gratuito 'Yet to Come'?",options:["Busan","Seoul"],correct:"Busan"},{q:"Qual música eles tocaram no Grammy 2022?",options:["Butter","On"],correct:"Butter"},{q:"Qual integrante produziu 'Wine' da Suran?",options:["Suga","RM"],correct:"Suga"},{q:"Quem lançou a mixtape 'Hope World'?",options:["J-Hope","Jungkook"],correct:"J-Hope"},{q:"Qual dorama o V participou como ator?",options:["Hwarang","Goblin"],correct:"Hwarang"},{q:"Qual o nome do solo do Jin de 2022?",options:["The Astronaut","Abyss"],correct:"The Astronaut"},{q:"Qual o nome da música de debut do BTS?",options:["No More Dream","Danger"],correct:"No More Dream"}],
+            4: [{q:"Em 'Pousando no Amor', ela cai onde?",options:["Coreia do Norte","Japão"],correct:"Coreia do Norte"},{q:"Dorama da advogada que ama baleias?",options:["Uma Advogada Extraordinária","Vincenzo"],correct:"Uma Advogada Extraordinária"},{q:"Qual a profissão dela em Hometown Cha-Cha-Cha?",options:["Dentista","Médica"],correct:"Dentista"},{q:"Dorama com os rapazes ricos do F4?",options:["Boys Over Flowers","The Heirs"],correct:"Boys Over Flowers"},{q:"Quem é o Rei em 'O Rei Eterno'?",options:["Lee Min-ho","Gong Yoo"],correct:"Lee Min-ho"},{q:"Dorama sobre um hotel para fantasmas?",options:["Hotel del Luna","Oh My Ghost
