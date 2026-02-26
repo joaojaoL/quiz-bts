@@ -56,7 +56,7 @@
     </div>
 
     <div class="music-control">
-        <button class="btn-music" onclick="toggleMusic()"><span id="music-icon">🔇</span></button>
+        <button class="btn-music" onclick="toggleMusic(event)"><span id="music-icon">🔇</span></button>
     </div>
 
     <script>
@@ -64,10 +64,20 @@
         const sfxCerto = document.getElementById('sound-certo');
         const sfxErrado = document.getElementById('sound-errado');
         const musicIcon = document.getElementById('music-icon');
+        let userMuted = true; // Começa mudo
 
-        function toggleMusic() {
-            if (audioBg.paused) { audioBg.play(); musicIcon.innerText = "🔊"; }
-            else { audioBg.pause(); musicIcon.innerText = "🔇"; }
+        function toggleMusic(event) {
+            if (event) event.stopPropagation(); // Impede que o clique no botão ative o clique do corpo
+            
+            if (audioBg.paused) {
+                audioBg.play();
+                musicIcon.innerText = "🔊";
+                userMuted = false;
+            } else {
+                audioBg.pause();
+                musicIcon.innerText = "🔇";
+                userMuted = true;
+            }
         }
 
         const db = {
@@ -185,7 +195,13 @@
 
         window.onload = () => {
             mudarNivel();
-            document.body.onclick = () => { if(audioBg.paused) { audioBg.play(); musicIcon.innerText = "🔊"; } };
+            // Só ativa o som no primeiro clique se o usuário não tiver clicado no botão de mudo antes
+            document.body.onclick = () => { 
+                if(audioBg.paused && !userMuted) { 
+                    audioBg.play(); 
+                    musicIcon.innerText = "🔊"; 
+                } 
+            };
         };
     </script>
 </body>
