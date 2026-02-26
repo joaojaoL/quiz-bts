@@ -167,4 +167,34 @@
                 });
             } else {
                 document.getElementById('question-text').innerText = "Fim do Nível! ✨";
-                optionsBox.innerHTML = `<p>Acertos: ${acertos}/10</p><button class="btn-option" style="background:#4a148c;color:#fff
+                optionsBox.innerHTML = `<p>Acertos: ${acertos}/10</p><button class="btn-option" style="background:#4a148c;color:#fff" onclick="location.reload()">Reiniciar</button>`;
+            }
+        }
+
+        function check(escolha, btn) {
+            if(bloqueado) return;
+            bloqueado = true;
+            const correta = perguntasAtuais[indexAtual].correct;
+            if (escolha === correta) {
+                acertos++;
+                btn.classList.add('btn-correct');
+                sfxCerto.currentTime = 0; sfxCerto.play();
+            } else {
+                btn.classList.add('btn-wrong');
+                sfxErrado.currentTime = 0; sfxErrado.play();
+                Array.from(document.querySelectorAll('.btn-option')).forEach(b => {
+                    if(b.innerText === correta) b.classList.add('btn-correct');
+                });
+            }
+            setTimeout(() => { indexAtual++; load(); }, 400);
+        }
+
+        window.onload = () => {
+            mudarNivel();
+            document.body.onclick = () => { 
+                if(audioBg.paused && !userMuted) { audioBg.play(); musicIcon.innerText = "🔊"; } 
+            };
+        };
+    </script>
+</body>
+</html>
